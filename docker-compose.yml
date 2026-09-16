@@ -1,0 +1,56 @@
+# =============================================================================
+# BoltPaint 子项目编排文件
+#
+# 生产模式：加入共享网络 bolt_net，主站 nginx 通过容器名访问后端服务。
+#   启动前请确保 OOWebsite/docker-compose.yml 已先启动（bolt_net 由其创建）。
+#
+# 开发模式（独立调试）：
+#   将 backend 的 expose 改为 ports: ["8000:8000"]，
+#   并临时移除 networks 配置，即可独立运行。
+# =============================================================================
+
+services:
+
+  # --- 数据库 ---
+  mongodb:
+    image: mongo:5.0
+    container_name: bolt_mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:?请在根目录 .env 中设置 MONGO_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:?请在根目录 .env 中设置 MONGO_ROOT_PASSWORD}
+    volumes:
+      - ./data/db:/data/db
+    networks:
+      - bolt_net
+
+  # --- 后端（仅内网暴露，由主站 nginx 代理）---
+  backend:
+    build:
+      context: ./backend
+      dockerfile: docker/Dockerfile
+    container_name: bolt_backend
+    restart: always
+    env_file:
+      - ./backend/.env.production
+    environment:
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    volumes:
+      - ./data:/data
+      - /lhcos-data:/lhcos-data
+    depends_on:
+      - mongodb
+    command: >
+      sh -c "echo '等待 MongoDB 就绪...' &&
+             python database/wait_for_mongo.py &&
+             exec uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    expose:
+      - "8000"   # 仅对 bolt_net 内部可见，不映射到宿主机
+    networks:
+      - bolt_net
+
+networks:
+  bolt_net:
+    external: true   # 由 OOWebsite/docker-compose.yml 负责创建
+    name: bolt_net

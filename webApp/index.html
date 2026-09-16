@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>BoltPaint - 最好用的AI绘画工具 | 6000+风格模板、一键漫画剧场</title>
+  <meta name="description" content="BoltPaint 是一款极其简单又强大的AI绘画工具。支持热门作品一键同款、一键生成漫画剧场、提供6000+风格模板、支持模版自定义、扩图与背景替换等功能，用最简单的方式实现你的创作灵感。" />
+  <meta name="keywords" content="AI绘画, AI工具, 扩图, 背景替换, 漫画生成, AI创作, BoltPaint" />
+  <link rel="canonical" href="https://bolt-series.com/boltPaint/" />
+  <link rel="icon" type="image/png" href="/boltPaint/images/logo.png" />
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "BoltPaint",
+      "url": "https://bolt-series.com/boltPaint/",
+      "description": "BoltPaint 是一款极其简单又强大的AI绘画工具。支持热门作品一键同款、一键生成漫画剧场、提供6000+风格模板、支持模版自定义、扩图与背景替换等功能，用最简单的方式实现你的创作灵感。",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "CNY"
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar hiding for clean mobile look */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Dropdown slide up animation */
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 首屏 Loading 骨架屏 */
+    #first-screen-loading {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #f8fafc;
+      z-index: 9999;
+    }
+
+    #first-screen-loading .logo {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+      animation: logoPulse 1.6s ease-in-out infinite;
+    }
+
+    #first-screen-loading .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid #e2e8f0;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes logoPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.75; transform: scale(0.96); }
+    }
+  </style>
+</head>
+
+<body class="bg-slate-50 text-slate-900 antialiased selection:bg-indigo-500 selection:text-white">
+  <!-- 首屏骨架屏：React 接管后会自动被替换 -->
+  <div id="first-screen-loading">
+    <img class="logo" src="/boltPaint/images/logo.png" alt="BoltPaint" />
+    <div class="spinner"></div>
+  </div>
+  <div id="root">
+    <div style="display:none">
+      <h1>BoltPaint - 最好用的AI绘画工具 | 6000+风格模板、一键漫画剧场</h1>
+      <p>BoltPaint 是一款极其简单又强大的AI绘画工具。支持热门作品一键同款、一键生成漫画剧场、提供6000+风格模板、支持模版自定义、扩图与背景替换等功能，用最简单的方式实现你的创作灵感。</p>
+      <ul>
+        <li><a href="/tools/advanced-creation">高阶生图</a></li>
+        <li><a href="/tools/expansion">AI 扩图与背景替换</a></li>
+        <li><a href="/tools/comic-generation">漫画大师</a></li>
+        <li><a href="/templates">风格模板广场</a></li>
+      </ul>
+    </div>
+  </div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>
