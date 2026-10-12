@@ -163,7 +163,9 @@ const Creation: React.FC = () => {
 
     const currentModelInfo = geminiModelMap[selectedModelId] ?? null;
     const isFlashImageModel = currentModelInfo?.is_flash ?? (selectedModelId === 'gemini-2.5-flash-image');
-    const resolutionOptions = useMemo((): readonly string[] => ['1K', '2K', '4K'], []);
+    const resolutionOptions = useMemo((): readonly string[] =>
+        billingStrategy?.supported_resolutions ?? ['1K', '2K', '4K'],
+        [billingStrategy?.supported_resolutions]);
 
     // 相关风格状态
     const [relatedTemplates, setRelatedTemplates] = useState<Template[]>([]);
@@ -217,7 +219,7 @@ const Creation: React.FC = () => {
 
     useEffect(() => {
         if (!resolutionOptions.includes(selectedResolution)) {
-            setSelectedResolution('2K');
+            setSelectedResolution(resolutionOptions.includes('2K') ? '2K' : resolutionOptions[0]);
         }
     }, [selectedModelId, resolutionOptions, selectedResolution]);
 

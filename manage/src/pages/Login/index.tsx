@@ -22,7 +22,7 @@ const Login: React.FC = () => {
             if (res.success) {
                 localStorage.setItem('admin_token', res.token);
                 localStorage.setItem('admin_user', JSON.stringify(res.user));
-                window.location.href = '/boltPaint/JManage/';
+                window.location.href = '/bpManage/';
             } else {
                 setError(res.message || '登录失败');
             }

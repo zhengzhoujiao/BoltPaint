@@ -14,6 +14,7 @@ import uuid
 from pathlib import Path
 import asyncio
 from typing import List, Optional
+from app.models import get_strategy_resolutions
 
 router = APIRouter(prefix="/generate", tags=["generate"])
 
@@ -259,6 +260,12 @@ async def generate_image(
             detail="分辨率 512 已停用，请使用 1K、2K 或 4K",
         )
     res = raw_res.upper()
+    supported_resolutions = get_strategy_resolutions(strategy)
+    if res not in supported_resolutions:
+        raise HTTPException(
+            status_code=400,
+            detail=f"当前定价策略仅支持 {'、'.join(supported_resolutions)} 分辨率，请重新选择。",
+        )
     if res == "1K":
         cost = strategy.get("price_1k", 5) if strategy else 5
     elif res == "4K":

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Card, Button, Form, Input, InputNumber, Modal, message, Popconfirm, Select, Space, Typography } from 'antd';
+import { Table, Card, Button, Checkbox, Form, Input, InputNumber, Modal, message, Popconfirm, Select, Space, Typography } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { getPricingStrategies, getPricingModels, createPricingStrategy, updatePricingStrategy, deletePricingStrategy } from '../../api';
 
@@ -9,6 +9,7 @@ interface PricingStrategy {
     id: string;
     name: string;
     model_id?: string;
+    supported_resolutions?: string[];
     price_1k: number;
     price_2k: number;
     price_4k: number;
@@ -27,6 +28,7 @@ const Pricing: React.FC = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [currentStrategy, setCurrentStrategy] = useState<PricingStrategy | null>(null);
     const [form] = Form.useForm();
+    const supportedResolutions = Form.useWatch('supported_resolutions', form) ?? ['1K', '2K', '4K'];
 
     const fetchPricingList = async () => {
         setLoading(true);
@@ -48,7 +50,7 @@ const Pricing: React.FC = () => {
 
     const handleEdit = (record: PricingStrategy) => {
         setCurrentStrategy(record);
-        form.setFieldsValue({ ...record, model_id: record.model_id || 'gemini-3-pro-image-preview' });
+        form.setFieldsValue({ ...record, supported_resolutions: record.supported_resolutions ?? ['1K', '2K', '4K'], model_id: record.model_id || 'gemini-3-pro-image-preview' });
         setIsModalVisible(true);
     };
 
@@ -88,6 +90,7 @@ const Pricing: React.FC = () => {
 
     const columns = [
         { title: '策略名称', dataIndex: 'name', key: 'name' },
+        { title: '支持分辨率', dataIndex: 'supported_resolutions', key: 'supported_resolutions', render: (values?: string[]) => (values ?? ['1K', '2K', '4K']).join('、') },
         {
             title: '生图模型',
             dataIndex: 'model_id',
@@ -107,19 +110,19 @@ const Pricing: React.FC = () => {
             title: '1K 价格',
             dataIndex: 'price_1k',
             key: 'price_1k',
-            render: (val: number) => <Text strong>{val} 豆</Text>
+            render: (val: number, record: PricingStrategy) => (record.supported_resolutions ?? ['1K', '2K', '4K']).includes('1K') ? <Text strong>{val} 豆</Text> : <Text type="secondary">未启用</Text>
         },
         {
             title: '2K 价格',
             dataIndex: 'price_2k',
             key: 'price_2k',
-            render: (val: number) => <Text strong color="blue">{val} 豆</Text>
+            render: (val: number, record: PricingStrategy) => (record.supported_resolutions ?? ['1K', '2K', '4K']).includes('2K') ? <Text strong color="blue">{val} 豆</Text> : <Text type="secondary">未启用</Text>
         },
         {
             title: '4K 价格',
             dataIndex: 'price_4k',
             key: 'price_4k',
-            render: (val: number) => <Text strong type="danger">{val} 豆</Text>
+            render: (val: number, record: PricingStrategy) => (record.supported_resolutions ?? ['1K', '2K', '4K']).includes('4K') ? <Text strong type="danger">{val} 豆</Text> : <Text type="secondary">未启用</Text>
         },
         {
             title: '操作',
@@ -148,7 +151,7 @@ const Pricing: React.FC = () => {
                 onOk={handleOk}
                 onCancel={() => setIsModalVisible(false)}
             >
-                <Form form={form} layout="vertical" initialValues={{ model_id: 'gemini-3-pro-image-preview', price_1k: 5, price_2k: 10, price_4k: 20 }}>
+                <Form form={form} layout="vertical" initialValues={{ model_id: 'gemini-3-pro-image-preview', supported_resolutions: ['1K', '2K', '4K'], price_1k: 5, price_2k: 10, price_4k: 20 }}>
                     <Form.Item name="name" label="策略名称" rules={[{ required: true, message: '请输入策略名称' }]}>
                         <Input placeholder="例如：基础计价、高质量计价" />
                     </Form.Item>
@@ -164,14 +167,17 @@ const Pricing: React.FC = () => {
                             ))}
                         </Select>
                     </Form.Item>
+                    <Form.Item name="supported_resolutions" label="支持的分辨率" rules={[{ required: true, type: 'array', min: 1, message: '请至少选择一个分辨率' }]} extra="创作页面仅展示勾选的分辨率，请按所选模型实际能力配置。GPT Image 2 Beta 当前仅支持 1K。">
+                        <Checkbox.Group options={['1K', '2K', '4K']} />
+                    </Form.Item>
                     <Form.Item name="price_1k" label="1K 分辨率价格 (豆子)" rules={[{ required: true }]}>
-                        <InputNumber min={0} style={{ width: '100%' }} />
+                        <InputNumber min={0} disabled={!supportedResolutions.includes('1K')} style={{ width: '100%' }} />
                     </Form.Item>
                     <Form.Item name="price_2k" label="2K 分辨率价格 (豆子)" rules={[{ required: true }]}>
-                        <InputNumber min={0} style={{ width: '100%' }} />
+                        <InputNumber min={0} disabled={!supportedResolutions.includes('2K')} style={{ width: '100%' }} />
                     </Form.Item>
                     <Form.Item name="price_4k" label="4K 分辨率价格 (豆子)" rules={[{ required: true }]}>
-                        <InputNumber min={0} style={{ width: '100%' }} />
+                        <InputNumber min={0} disabled={!supportedResolutions.includes('4K')} style={{ width: '100%' }} />
                     </Form.Item>
                 </Form>
             </Modal>

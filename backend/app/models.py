@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, field_validator, ConfigDict
-from typing import Optional, List, Any, Dict
+from typing import Optional, List, Any, Dict, Literal
 from datetime import datetime, timezone
 from enum import Enum
 
@@ -234,6 +234,7 @@ class ImageModel(BaseModel):
     name: str                        # 展示名称，如 "香蕉Pro"
     is_flash: bool = False           # True → 固定约 1024px，不支持 imageSize 参数
     supports_512: bool = False       # True → 支持 512 超低分辨率档位
+    supported_resolutions: List[str] = Field(default_factory=lambda: ["1K", "2K", "4K"])  # 从关联定价策略读取
     description: str = ""
     pricing_strategy_id: str = "BananaPro"  # 关联的定价策略
     enabled: bool = True             # 是否在前端展示
@@ -268,6 +269,15 @@ class ImageModelUpdate(BaseModel):
 
 
 # Pricing Strategy Models
+def get_strategy_resolutions(strategy: Optional[dict]) -> List[str]:
+    """显式策略配置优先；旧 GPT beta 策略默认 1K，其余旧策略保留全部档位。"""
+    strategy = strategy or {}
+    configured = strategy.get("supported_resolutions")
+    if configured is not None:
+        return configured
+    return ["1K"] if strategy.get("model_id") == "gpt-image-2-beta" else ["1K", "2K", "4K"]
+
+
 class PricingStrategy(BaseModel):
     id: str
     name: str
@@ -275,6 +285,7 @@ class PricingStrategy(BaseModel):
     price_1k: int = 10
     price_2k: int = 20
     price_4k: int = 40
+    supported_resolutions: List[Literal["1K", "2K", "4K"]] = Field(default_factory=lambda: ["1K", "2K", "4K"], min_length=1)
     created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
     updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
 
@@ -285,6 +296,7 @@ class PricingStrategyCreate(BaseModel):
     price_1k: int = 10
     price_2k: int = 20
     price_4k: int = 40
+    supported_resolutions: List[Literal["1K", "2K", "4K"]] = Field(default_factory=lambda: ["1K", "2K", "4K"], min_length=1)
 
 
 class PricingStrategyUpdate(BaseModel):
@@ -293,6 +305,7 @@ class PricingStrategyUpdate(BaseModel):
     price_1k: Optional[int] = None
     price_2k: Optional[int] = None
     price_4k: Optional[int] = None
+    supported_resolutions: Optional[List[Literal["1K", "2K", "4K"]]] = Field(default=None, min_length=1)
 
 
 # Template Models

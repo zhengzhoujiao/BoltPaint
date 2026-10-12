@@ -16,7 +16,7 @@ async def connect_to_mongo():
         db.client = AsyncIOMotorClient(settings.mongodb_url, serverSelectionTimeoutMS=5000)
         # 测试连接
         await db.client.admin.command('ping')
-        print(f"[OK] 已连接到 MongoDB: {settings.mongodb_url}")
+        print("[OK] 已连接到 MongoDB")
     except Exception as e:
         print(f"[ERROR] MongoDB 连接失败: {e}")
         print("[WARN] 服务将继续运行，但数据库操作将失败")

@@ -134,7 +134,7 @@ async def ensure_database_indexes(db) -> None:
 async def init_database() -> bool:
     """初始化数据库，创建所有集合和示例数据。成功返回 True，失败返回 False。"""
     try:
-        print(f"[*] 正在连接 MongoDB: {settings.mongodb_url}")
+        print("[*] 正在连接 MongoDB")
         client = AsyncIOMotorClient(settings.mongodb_url, serverSelectionTimeoutMS=5000)
         
         # 测试连接
@@ -412,6 +412,7 @@ async def init_pricing_strategies(db):
             "id": "GPTImage2",
             "name": "GPT Image 2",
             "model_id": "gpt-image-2-beta",
+            "supported_resolutions": ["1K"],
             "price_1k": 10,
             "price_2k": 20,
             "price_4k": 35,
@@ -422,13 +423,18 @@ async def init_pricing_strategies(db):
 
     inserted = 0
     for s in strategies:
+        s.setdefault("supported_resolutions", ["1K", "2K", "4K"])
         existing = await db.pricing_strategies.find_one({"id": s["id"]})
         if not existing:
             await db.pricing_strategies.insert_one(s)
             inserted += 1
             print(f"   [+] 新增策略: {s['id']}")
         else:
-            print(f"   [=] 已存在策略: {s['id']}，跳过")
+            await db.pricing_strategies.update_one(
+                {"id": s["id"], "supported_resolutions": {"$exists": False}},
+                {"$set": {"supported_resolutions": ["1K"] if existing.get("model_id") == "gpt-image-2-beta" else ["1K", "2K", "4K"]}},
+            )
+            print(f"   [=] 已存在策略: {s['id']}，保留配置并补全缺失的分辨率字段")
     print(f"   [+] 定价策略初始化完成，新增 {inserted} 条")
 
 

@@ -6,7 +6,7 @@ import zhCN from 'antd/locale/zh_CN'
 function App() {
   return (
     <ConfigProvider locale={zhCN}>
-      <BrowserRouter basename="/boltPaint/JManage">
+      <BrowserRouter basename="/bpManage">
         <AppRouter />
       </BrowserRouter>
     </ConfigProvider>

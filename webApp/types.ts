@@ -84,6 +84,7 @@ export interface GeminiModelInfo {
 
 /** 生图模型配置（来自 /models 接口，包含关联的定价信息） */
 export interface ImageModel {
+  supported_resolutions?: string[];
   /** Gemini API model ID，如 "gemini-3-pro-image-preview" */
   id: string;
   /** 展示名称，如 "香蕉Pro" */
@@ -102,6 +103,7 @@ export interface ImageModel {
 }
 
 export interface PricingStrategy {
+  supported_resolutions?: string[];
   id: string;
   name: string;
   model_id?: string;

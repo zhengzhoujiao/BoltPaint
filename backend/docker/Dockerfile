@@ -8,15 +8,10 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# 安装系统依赖（如果项目需要一些特定的 C 库，可以在这里添加）
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
 # 复制 requirements.txt 并安装 Python 依赖
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+ARG PIP_INDEX_URL=https://pypi.org/simple
+RUN pip install --no-cache-dir -r requirements.txt
 
 # 复制项目代码
 COPY . .

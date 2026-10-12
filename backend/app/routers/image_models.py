@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Response, Depends
 from app.dependencies import get_admin_user_id
 from app.database import get_database
-from app.models import ImageModel, ImageModelCreate, ImageModelUpdate, GEMINI_IMAGE_MODELS, EVOLINK_IMAGE_MODELS
+from app.models import ImageModel, ImageModelCreate, ImageModelUpdate, GEMINI_IMAGE_MODELS, EVOLINK_IMAGE_MODELS, get_strategy_resolutions
 from typing import List, Optional
 from datetime import datetime
 
@@ -15,6 +15,7 @@ async def _get_model_with_pricing(doc: dict, db) -> dict:
     if strategy_id:
         strategy = await db.pricing_strategies.find_one({"id": strategy_id})
         if strategy:
+            clean["supported_resolutions"] = get_strategy_resolutions(strategy)
             clean["price_1k"] = strategy.get("price_1k")
             clean["price_2k"] = strategy.get("price_2k")
             clean["price_4k"] = strategy.get("price_4k")

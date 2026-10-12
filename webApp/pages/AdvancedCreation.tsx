@@ -105,7 +105,9 @@ const AdvancedCreation: React.FC = () => {
 
     const isFlashImageModel = selectedModel?.is_flash ?? false;
 
-    const resolutionOptions = useMemo(() => ['1K', '2K', '4K'] as const, []);
+    const resolutionOptions = useMemo((): readonly string[] =>
+        selectedModel?.supported_resolutions ?? ['1K', '2K', '4K'],
+        [selectedModel?.id, selectedModel?.supported_resolutions]);
 
     // Save state before payment
     const saveStateToLocal = () => {
@@ -145,7 +147,7 @@ const AdvancedCreation: React.FC = () => {
         if (isFlashImageModel || !selectedModel) return;
         const opts = resolutionOptions as readonly string[];
         if (!opts.includes(selectedResolution)) {
-            setSelectedResolution('2K');
+            setSelectedResolution(opts.includes('2K') ? '2K' : opts[0]);
         }
     }, [selectedModel?.id, isFlashImageModel, resolutionOptions, selectedResolution]);
 

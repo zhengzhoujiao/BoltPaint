@@ -9,6 +9,7 @@ from app.models import (
     EVOLINK_IMAGE_MODELS,
     ALL_IMAGE_MODELS,
     DEFAULT_ADVANCED_MODEL,
+    get_strategy_resolutions,
 )
 from typing import Any, List, Dict, Optional
 from datetime import datetime
@@ -22,6 +23,7 @@ def _doc_to_pricing_strategy(doc: dict) -> Optional[PricingStrategy]:
         clean = {k: v for k, v in doc.items() if k != "_id"}
         if not clean.get("model_id"):
             clean["model_id"] = DEFAULT_ADVANCED_MODEL
+        clean["supported_resolutions"] = get_strategy_resolutions(clean)
         return PricingStrategy(**clean)
     except Exception as e:
         print(f"[WARN] 跳过无效定价策略文档 id={doc.get('id')!r}: {e}")
@@ -89,7 +91,7 @@ async def get_pricing_strategy(strategy_id: str):
     strategy = await db.pricing_strategies.find_one({"id": strategy_id})
     if not strategy:
         raise HTTPException(status_code=404, detail="Pricing strategy not found")
-    return PricingStrategy(**strategy)
+    return _doc_to_pricing_strategy(strategy)
 
 @router.put("/{strategy_id}", response_model=PricingStrategy)
 async def update_pricing_strategy(strategy_id: str, strategy_update: PricingStrategyUpdate, admin_id: str = Depends(get_admin_user_id)):
@@ -110,7 +112,7 @@ async def update_pricing_strategy(strategy_id: str, strategy_update: PricingStra
     )
     
     updated = await db.pricing_strategies.find_one({"id": strategy_id})
-    return PricingStrategy(**updated)
+    return _doc_to_pricing_strategy(updated)
 
 @router.delete("/{strategy_id}")
 async def delete_pricing_strategy(strategy_id: str, admin_id: str = Depends(get_admin_user_id)):

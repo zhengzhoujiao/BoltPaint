@@ -47,3 +47,7 @@ data/
 # OS
 .DS_Store
 Thumbs.db
+
+# Keep deployment secrets out of image layers
+.env.*
+!.env.example

@@ -28,7 +28,7 @@ request.interceptors.response.use(
       localStorage.removeItem('admin_token');
       localStorage.removeItem('admin_user');
       if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/boltPaint/JManage/login';
+        window.location.href = '/bpManage/login';
       }
     }
     return Promise.reject(error);
